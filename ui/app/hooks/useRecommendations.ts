@@ -14,16 +14,6 @@ interface UseRecommendationsReturn {
   markAsUnread: (bookId: string) => Promise<void>;
 }
 
-type UserStore = {
-  readbooks: string[];
-  futurebooks: string[];
-}
-
-
-const Store: UserStore = {
-  readbooks: [],
-  futurebooks: [],
-}
 
 // Helper function to convert Card to Book
 function cardToBook(card: Card): Book {
@@ -45,17 +35,6 @@ function cardToBook(card: Card): Book {
 }
 
 
-function markAsRead(bookId: string) {
-  Store.readbooks.push(bookId);
-}
-
-function markAsUnread(bookId: string) {
-  Store.futurebooks.push(bookId);
-}
-
-function getUserStore() {
-  return Store;
-}
 
 
 
