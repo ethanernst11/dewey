@@ -75,9 +75,9 @@ export default function LibPage() {
                     />
                   </div>
 
-                  {/* Status icon: Want to Read (blue star) */}
-                  <div className="absolute top-2 right-2 text-blue-600" title="Want to Read" aria-label="Want to Read">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  {/* Status icon: Want to Read (yellow star in white circle) */}
+                  <div className="absolute top-6 right-6 bg-white text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg" title="Want to Read" aria-label="Want to Read">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                     </svg>
                   </div>
@@ -127,17 +127,10 @@ export default function LibPage() {
                       id={book.id}
                       title={book.title}
                       imageUrl={book.imageUrl}
-                      isRead={false}
+                      isRead={true}
                       author={book.author}
                       description={book.description}
                     />
-                  </div>
-
-                  {/* Status icon: Read (green star) */}
-                  <div className="absolute top-2 right-2 text-green-600" title="Read" aria-label="Read">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
                   </div>
 
                   {/* Remove button */}
