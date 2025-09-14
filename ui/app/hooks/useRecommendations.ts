@@ -42,8 +42,14 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
 
   const fetchRecommendations = useCallback(async (page: number = 1, append: boolean = false) => {
     try {
+
+      if (params.searchPrompt) {
+        params.searchPrompt = `Find book that has similar genre, year, author, title and description as ${params.searchPrompt}`
+      }
+      console.log('fetchRecommendations called with:', { page, append, searchPrompt: params.searchPrompt });
       setLoading(true);
       setError(null);
+
 
       const requestParams = { sessionId, ...params, page };
       const response = await recommendationService.getRecommendations(requestParams);
@@ -62,6 +68,13 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
       setLoading(false);
     }
   }, [sessionId, params.batchCount, params.events, params.searchPrompt]);
+
+  // Fetch recommendations when search prompt or other params change
+  useEffect(() => {
+    console.log('useEffect triggered for search:', params.searchPrompt);
+    setCurrentPage(1);
+    fetchRecommendations(1, false);
+  }, [params.searchPrompt, params.batchCount, params.events, sessionId, fetchRecommendations]);
 
   const refetch = useCallback(async () => {
     await fetchRecommendations();
@@ -91,9 +104,6 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
     );
   }, []);
 
-  useEffect(() => {
-    fetchRecommendations(1, false);
-  }, [fetchRecommendations]);
 
   return {
     books,
