@@ -1,6 +1,6 @@
-'use client';
+ 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import Navigation from './components/Navigation';
 import Card from './components/Card';
 import { useRecommendations } from './hooks/useRecommendations';
@@ -18,16 +18,33 @@ export default function FeedPage() {
   }), []);
   
   const { books, loading, error, loadMore } = useRecommendations(sessionId, params);
-  const { addBook, isInLibrary } = useLibrary();
+  const { addBook, isInLibrary, markAsRead, markAsUnread, readBooks, wantToReadBooks } = useLibrary();
+
+  const [actionForId, setActionForId] = useState<string | null>(null);
+
+  const closeActionMenu = useCallback(() => setActionForId(null), []);
 
   const handleCardClick = (book: any) => {
     if (isInLibrary(book.id)) {
       // Book is already in library, do nothing or show message
       console.log('Book is already in your library');
     } else {
-      // Add book to library
-      addBook(book);
+      // Open action menu to choose how to add
+      setActionForId(book.id);
     }
+  };
+
+  const handleAddAsRead = (book: any) => {
+    addBook(book);
+    markAsRead(book.id);
+    closeActionMenu();
+  };
+
+  const handleAddAsWantToRead = (book: any) => {
+    addBook(book);
+    // Ensure isRead is false in stored book for consistency
+    markAsUnread(book.id);
+    closeActionMenu();
   };
 
   if (loading && books.length === 0) {
@@ -88,6 +105,8 @@ export default function FeedPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {books.map((book) => {
             const inLibrary = isInLibrary(book.id);
+            const isReadInLibrary = readBooks.some(b => b.id === book.id);
+            const isWantInLibrary = wantToReadBooks.some(b => b.id === book.id);
             return (
               <div 
                 key={book.id} 
@@ -98,22 +117,51 @@ export default function FeedPage() {
                   id={book.id}
                   title={book.title}
                   imageUrl={book.imageUrl}
-                  isRead={book.isRead}
+                  isRead={inLibrary ? isReadInLibrary : book.isRead}
                   author={book.author}
                   description={book.description}
                 />
                 
                 {/* Library status indicator */}
                 {inLibrary && (
-                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                    In Library
+                  <div className={`absolute top-2 right-2 ${isReadInLibrary ? 'bg-green-600' : 'bg-blue-600'} text-white px-2 py-1 rounded-full text-xs font-medium`}>
+                    {isReadInLibrary ? 'Read' : 'Want to Read'}
                   </div>
                 )}
                 
                 {/* Add to library hint */}
-                {!inLibrary && (
+                {!inLibrary && actionForId !== book.id && (
                   <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-75 text-white px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <p className="text-sm text-center">Click to add to library</p>
+                    <p className="text-sm text-center">Click to choose how to add</p>
+                  </div>
+                )}
+
+                {/* Action menu for adding */}
+                {!inLibrary && actionForId === book.id && (
+                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-4" onClick={(e) => { e.stopPropagation(); }}>
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-xs p-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Add to Library</h4>
+                      <div className="space-y-2">
+                        <button
+                          className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); handleAddAsWantToRead(book); }}
+                        >
+                          Mark as Want to Read
+                        </button>
+                        <button
+                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); handleAddAsRead(book); }}
+                        >
+                          Mark as Read
+                        </button>
+                        <button
+                          className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                          onClick={(e) => { e.stopPropagation(); closeActionMenu(); }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

@@ -13,6 +13,8 @@ import {
 
 interface UseLibraryReturn {
   libraryBooks: Book[];
+  readBooks: Book[];
+  wantToReadBooks: Book[];
   addBook: (book: Book) => void;
   removeBook: (bookId: string) => void;
   markAsRead: (bookId: string) => void;
@@ -57,8 +59,13 @@ export function useLibrary(): UseLibraryReturn {
     refreshLibrary();
   }, [refreshLibrary]);
 
+  const readBooks = libraryBooks.filter(b => b.isRead);
+  const wantToReadBooks = libraryBooks.filter(b => !b.isRead);
+
   return {
     libraryBooks,
+    readBooks,
+    wantToReadBooks,
     addBook,
     removeBook,
     markAsRead,
