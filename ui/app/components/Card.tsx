@@ -11,8 +11,8 @@ interface CardProps {
 
 export default function Card({ title, imageUrl, isRead, author, description }: CardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <div className="relative h-48 w-full">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 h-96 flex flex-col">
+      <div className="relative h-48 w-full shrink-0">
         <Image
           src={imageUrl}
           alt={title}
@@ -25,15 +25,17 @@ export default function Card({ title, imageUrl, isRead, author, description }: C
           </div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+      <div className="p-4 flex-1 flex flex-col">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-3">
           {title}
         </h3>
         {author && (
           <p className="text-sm text-gray-600 mb-2">by {author}</p>
         )}
+        {/* Spacer to ensure consistent bottom padding placement */}
+        <div className="mt-auto" />
         {description && (
-          <p className="text-sm text-gray-700 line-clamp-3">
+          <p className="text-sm text-gray-700 line-clamp-6">
             {description}
           </p>
         )}
