@@ -10,12 +10,13 @@ export default function FeedPage() {
   const sessionId = 'c53521d3-e2ba-4814-8e46-7c167799a949';
   
   // Create stable references to prevent infinite loops
+  const [currentPage, setCurrentPage] = useState(1);
   const params = useMemo(() => ({
-    page: 1,
+    page: currentPage,
     batchCount: 10,
     events: [] as string[],
     searchPrompt: ''
-  }), []);
+  }), [currentPage]);
   
   const { books, loading, error, loadMore } = useRecommendations(sessionId, params);
   const { addBook, isInLibrary, markAsRead, markAsUnread, readBooks, wantToReadBooks } = useLibrary();
@@ -122,10 +123,12 @@ export default function FeedPage() {
                   description={book.description}
                 />
                 
-                {/* Library status indicator */}
-                {inLibrary && (
-                  <div className={`absolute top-2 right-2 ${isReadInLibrary ? 'bg-green-600' : 'bg-blue-600'} text-white px-2 py-1 rounded-full text-xs font-medium`}>
-                    {isReadInLibrary ? 'Read' : 'Want to Read'}
+                {/* Library status indicator - only show for Want to Read since Read is shown in Card component */}
+                {inLibrary && !isReadInLibrary && (
+                  <div className="absolute top-6 right-6 bg-white text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
                   </div>
                 )}
                 
