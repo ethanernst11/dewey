@@ -1,0 +1,48 @@
+from os import environ
+from uuid import uuid4
+from typing import List, Optional, TypedDict
+import requests
+import json
+
+PROJECT_NAME = environ.get("PROJECT_NAME")
+TOKEN = environ.get("ACCESS_TOKEN")
+URL_ORIGIN = "https://app.productgenius.io"
+USER = environ.get("USER")
+PASS= environ.get("PASS")
+
+class METADATA(TypedDict):
+    name: str
+    value: str
+
+
+class IngestionObject(TypedDict):
+    id: Optional[uuid4]
+    title: str
+    description: str
+    image_url: str
+    external_url: str
+    metadata: List[METADATA]
+
+
+
+
+def get_feed(session_id: str, *, page = 1, batch_count= 10, events = [], search_prompt = "" ):
+
+    URL = f"{URL_ORIGIN}/hackathon/{PROJECT_NAME}/feed/{session_id}"
+    print(URL)
+    print(TOKEN)
+    data = {
+        "page": page,
+        "batch_count": batch_count,
+        "events": events,
+        "search_prompt": search_prompt  
+    }
+
+    response = requests.post(URL, 
+                            headers={
+                                "Authorization": f"Bearer {TOKEN}",
+                                "Content-Type": "application/json",
+                            },
+                            json=data
+    )
+    return response.json()
