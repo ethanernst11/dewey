@@ -1,10 +1,10 @@
+from pkgutil import iter_modules
 import pandas as pd
 from typing import List
 from src.item_api import IngestionObject, add_items, get_items, METADATA
 import json
 
-df = pd.read_csv("dataset/movie.csv")
-df = df.head(5)
+
 
 def convert_df_to_items(df: pd.DataFrame) -> List[IngestionObject]:
 
@@ -48,10 +48,18 @@ def convert_json_to_items(json_data: list[dict]) -> List[IngestionObject]:
 from os import environ
 PROJECT_NAME = environ.get("PROJECT_NAME")
 # items = convert_json_to_items(json.load(open("dataset/books.json")))
-items = json.load(open("dataset/books.json"))
-# items = convert_df_to_items(df)[:4]
-res = add_items(items)
+# items = json.load(open("dataset/books.json"))
+items = json.load(open("dataset/test.json"))
+items = items[:50]
+PROJECT_NAME = "dummy-name"
+for item in items:
+    item.pop("id")
+
+res = add_items(PROJECT_NAME, items)
 print(res)
+# items = convert_df_to_items(df)[:4]
+# res = add_items(items)
+# print(res)
 # PROJECT_NAME = "dummy-name"
 # PROJECT_NAME = environ.get("PROJECT_NAME")
 # items = get_items(PROJECT_NAME)[:3]
