@@ -26,17 +26,18 @@ class IngestionObject(TypedDict):
 
 
 
-def get_feed(session_id: str, *, page = 1, batch_count= 10, events = [], search_prompt = "" ):
+def get_feed(project_name: str, session_id: str, *, page = 1, batch_count= 10, events = [], search_prompt = ""):
 
     URL = f"{URL_ORIGIN}/hackathon/{PROJECT_NAME}/feed/{session_id}"
-    print(URL)
-    print(TOKEN)
     data = {
         "page": page,
         "batch_count": batch_count,
         "events": events,
-        "search_prompt": search_prompt  
+        "search_prompt": search_prompt.strip()  
     }
+    print(URL)
+    print(TOKEN)
+    print(data)
 
     response = requests.post(URL, 
                             headers={
@@ -45,4 +46,10 @@ def get_feed(session_id: str, *, page = 1, batch_count= 10, events = [], search_
                             },
                             json=data
     )
+    try:
+        assert response.status_code == 200
+    except Exception as e:
+        print(response.json())
+        print(e)
+        return
     return response.json()

@@ -1,6 +1,9 @@
 from os import environ
+from re import U
 import requests
 import json
+
+from urllib3.util import Url
 
 PROJECT_NAME = environ.get("PROJECT_NAME")
 TOKEN = environ.get("ACCESS_TOKEN")
@@ -27,10 +30,11 @@ class IngestionObject(TypedDict):
 
 
 
-def add_items(items: List[IngestionObject]):
+def add_items(project_name: str, items: List[IngestionObject]):
 
-    URL = f"{URL_ORIGIN}/hackathon/project/{PROJECT_NAME}/items/create"
+    URL = f"{URL_ORIGIN}/hackathon/project/{project_name}/items/create"
 
+    print(json.dumps(items, indent=4))
     response = requests.post(URL, 
                             headers={
                                 "Authorization": f"Bearer {TOKEN}",
@@ -57,7 +61,7 @@ def get_item(project_name: str, item_id: str) -> IngestionObject:
     URL = f"{URL_ORIGIN}/hackathon/project/{project_name}/items/{item_id}"
     response = requests.get(URL, 
                             headers={
-                                "Authorization": "Bearer 7e9ada8e-bfae-4715-abc3-40dd02e37af1",
+                                "Authorization": f"Bearer {TOKEN}",
                                 "Content-Type": "application/json",
                             })
     return response.json()
@@ -66,10 +70,18 @@ def update_item(project_name: str, item_id: str, item: IngestionObject) -> Inges
     URL = f"{URL_ORIGIN}/hackathon/project/{project_name}/items/{item_id}"
     response = requests.put(URL, 
                             headers={
-                                "Authorization": "Bearer 7e9ada8e-bfae-4715-abc3-40dd02e37af1",
+                                "Authorization": f"Bearer {TOKEN}",
                                 "Content-Type": "application/json",
                             },
                             data=json.dumps(item))
     return response.json()
 
 
+def delete_item(project_name: str, item_id: str) -> IngestionObject:
+    URL = f"{URL_ORIGIN}/hackathon/project/{project_name}/items/{item_id}/delete"
+    response = requests.delete(URL, 
+                            headers={
+                                "Authorization": f"Bearer {TOKEN}",
+                                "Content-Type": "application/json",
+                            })
+    return response.json()
