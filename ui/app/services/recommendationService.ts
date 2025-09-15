@@ -34,7 +34,7 @@ class RecommendationService {
     }
 
     const data = await response.json();
-    console.log('API response:', data);
+    console.log('API response:', data.cards);
     return data;
   }
 

@@ -1,36 +1,43 @@
  'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import PageLayout from './components/PageLayout';
 import LoadingSpinner from './components/LoadingSpinner';
 import ScrollToTop from './components/ScrollToTop';
 import Card from './components/Card';
 import { useRecommendations } from './hooks/useRecommendations';
 import { useLibrary } from './hooks/libHooks';
+import { v4 as uuidv4 } from 'uuid';
+
+const sessionId = String(uuidv4())
+
 
 export default function FeedPage() {
-  const sessionId = 'c53521d3-e2ba-4814-8e46-7c167799a949';
-  
-  // Create stable references to prevent infinite loops
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchPrompt, setSearchPrompt] = useState('');
   const params = useMemo(() => ({
-    page: currentPage,
     batchCount: 10,
-    events: [] as string[],
+    events: [],
     searchPrompt: searchPrompt
-  }), [currentPage, searchPrompt]);
+  }), [searchPrompt]);
   
-  const { books, loading, error, loadMore } = useRecommendations(sessionId, params);
+  const { books, loading, error, loadMore, trackCard, untrackCard } = useRecommendations(sessionId, params);
   const { addBook, isInLibrary, markAsRead, markAsUnread, readBooks, wantToReadBooks } = useLibrary();
 
   const [actionForId, setActionForId] = useState<string | null>(null);
 
   const closeActionMenu = useCallback(() => setActionForId(null), []);
 
+  // Callback ref to register cards for tracking
+  const cardRef = useCallback((element: HTMLDivElement | null, trackingId: string) => {
+    if (element) {
+      trackCard(trackingId, element);
+    } else {
+      untrackCard(trackingId);
+    }
+  }, [trackCard, untrackCard]);
+
   const handleSearch = useCallback((query: string) => {
     setSearchPrompt(query);
-    setCurrentPage(1); // Reset to first page when searching
   }, []);
 
   const handleCardClick = (book: any) => {
@@ -118,13 +125,16 @@ export default function FeedPage() {
         )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {books.map((book) => {
+            {books.map((book, index) => {
             const inLibrary = isInLibrary(book.id);
             const isReadInLibrary = readBooks.some(b => b.id === book.id);
             const isWantInLibrary = wantToReadBooks.some(b => b.id === book.id);
+            // add #index to book.id because same book can appear multiple times in the feed
+            const trackingId = `${book.id}#${index}`;
             return (
               <div 
-                key={book.id} 
+                key={index} 
+                ref={(el) => cardRef(el, trackingId)}
                 className="cursor-pointer relative group"
                 onClick={() => handleCardClick(book)}
               >

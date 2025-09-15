@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Book, Card, RecommendationRequest, RecommendationResponse } from '../types/book';
+import { Book, Card, RecommendationRequest, Event } from '../types/book';
 import { recommendationService } from '../services/recommendationService';
+import { useLingerTracking } from './useLingerTracking';
 
 interface UseRecommendationsReturn {
   books: Book[];
@@ -12,6 +13,8 @@ interface UseRecommendationsReturn {
   loadMore: () => Promise<void>;
   markAsRead: (bookId: string) => Promise<void>;
   markAsUnread: (bookId: string) => Promise<void>;
+  trackCard: (cardId: string, element: HTMLElement) => void;
+  untrackCard: (cardId: string) => void;
 }
 
 
@@ -20,7 +23,7 @@ function cardToBook(card: Card): Book {
   const author = card.product.attributes.find(attr => attr.name === 'Author')?.value;
   const genre = card.product.attributes.find(attr => attr.name === 'genre')?.value;
   const publishedYear = card.product.attributes.find(attr => attr.name === 'Year Published')?.value;
-  
+
   return {
     id: card.id,
     title: card.product.title,
@@ -40,25 +43,42 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(params.page || 1);
 
+  // Initialize linger tracking
+  const { trackCard, untrackCard, getLingerMetrics, resetTracking } = useLingerTracking(sessionId);
+
   const fetchRecommendations = useCallback(async (page: number = 1, append: boolean = false) => {
     try {
-
-      if (params.searchPrompt) {
-        params.searchPrompt = `Find book that has similar genre, year, author, title and description as ${params.searchPrompt}`
-      }
       console.log('fetchRecommendations called with:', { page, append, searchPrompt: params.searchPrompt });
       setLoading(true);
       setError(null);
 
-
-      const requestParams = { sessionId, ...params, page };
-      const response = await recommendationService.getRecommendations(requestParams);
-      console.log('API response:', response);
+      // Get linger metrics before making the request
+      const lingerEvent = getLingerMetrics();
+      const events: Event[] = [];
       
+      if (lingerEvent) {
+        events.push(lingerEvent);
+        console.log('Sending linger metrics:', lingerEvent);
+      }
+      const requestParams = {
+        sessionId,
+        ...params,
+        page,
+        // events: [...(params.events || []), ...events]
+        events: events
+      };
+
+      console.log('requestParams:', requestParams);
+      const response = await recommendationService.getRecommendations(requestParams);
+      console.log('API response:', response.cards);
+
       const convertedBooks = response.cards.map(cardToBook);
+      console.log('convertedBooks:', convertedBooks);
       if (append) {
         setBooks(prevBooks => [...prevBooks, ...convertedBooks]);
       } else {
+        // Reset tracking when loading new results (not appending)
+        resetTracking();
         setBooks(convertedBooks);
       }
     } catch (err) {
@@ -67,7 +87,7 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
     } finally {
       setLoading(false);
     }
-  }, [sessionId, params.batchCount, params.events, params.searchPrompt]);
+  }, [sessionId, params.batchCount, params.events, params.searchPrompt, getLingerMetrics, resetTracking]);
 
   // Fetch recommendations when search prompt or other params change
   useEffect(() => {
@@ -113,5 +133,7 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
     loadMore,
     markAsRead,
     markAsUnread,
+    trackCard,
+    untrackCard,
   };
 }

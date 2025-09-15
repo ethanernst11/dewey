@@ -30,11 +30,36 @@ export interface Card {
   product: Product;
 }
 
+export interface LingerEventProperties {
+  organization_id: string;
+  visitor_id: string;
+  session_id: string;
+  payload: Record<string, {
+    enter_count: number;
+    id: string;
+    time: number;
+    type: string;
+  }>;
+}
+
+export interface AbstractInterestProperties {
+  organization_id: string;
+  visitor_id: string;
+  session_id: string;
+  id: string;
+  weight: number;
+}
+
+export interface Event {
+  event: string;
+  properties: LingerEventProperties | AbstractInterestProperties;
+}
+
 export interface RecommendationRequest {
   sessionId: string;
   page?: number;
   batchCount?: number;
-  events?: string[];
+  events?: Event[];
   searchPrompt?: string;
 }
 
