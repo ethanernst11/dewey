@@ -119,11 +119,10 @@ export default function FeedPage() {
       >
         <div className="relative">
         {loading && (
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
-            <LoadingSpinner size="small" color="white" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex justify-center">
+              <LoadingSpinner size="large" color="blue"/>
           </div>
         )}
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.map((book, index) => {
             const inLibrary = isInLibrary(book.id);
@@ -198,20 +197,19 @@ export default function FeedPage() {
         </div>
 
       <div className="text-center mt-8">
-        <button
-          onClick={loadMore}
-          disabled={loading}
-          className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <div className="flex items-center">
-              <LoadingSpinner size="small" color="white" className="mr-2" />
-              Loading...
-            </div>
-          ) : (
-            'Load More'
-          )}
-        </button>
+        {loading ? (
+          <div className="flex justify-center items-center">
+          <LoadingSpinner size="large" />
+          </div>
+        ) : (
+          <button
+            onClick={loadMore}
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Load More
+          </button>
+        )}
       </div>
       </PageLayout>
     </>
