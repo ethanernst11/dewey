@@ -2,11 +2,12 @@
 
 import Navigation from '../components/Navigation';
 import Card from '../components/Card';
+import { useState } from 'react';
 import { useLibrary } from '../hooks/libHooks';
 
 export default function LibPage() {
   const { libraryBooks, readBooks, wantToReadBooks, removeBook, markAsRead } = useLibrary();
-
+  const [viewState, setViewState] = useState<string>("Want to Read")
   const handleRemoveBook = (bookId: string) => {
     if (confirm('Are you sure you want to remove this book from your library?')) {
       removeBook(bookId);
@@ -48,12 +49,47 @@ export default function LibPage() {
       <Navigation />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">My Library</h2>
+          {/* Header with title and toggle buttons in the same row */}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-3xl font-bold text-gray-900">My Library</h2>
+            
+            {/* Toggle buttons positioned on the right */}
+            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+              <button 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  viewState === "Want to Read" 
+                    ? 'bg-white text-yellow-500 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+                onClick={() => setViewState("Want to Read")}
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                <span>Want to Read</span>
+              </button>
+              <button 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  viewState === "READ" 
+                    ? 'bg-white text-green-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+                onClick={() => setViewState("READ")}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Read</span>
+              </button>
+            </div>
+          </div>
+          
           <p className="text-gray-600">Your personal collection of books ({libraryBooks.length} books)</p>
         </div>
 
-        {/* Want to Read Section */}
-        <section className="mb-10">
+        {
+          viewState === "Want to Read" ? 
+          <section className="mb-10">
           <div className="flex items-baseline justify-between mb-4">
             <h3 className="text-2xl font-semibold text-gray-900">Want to Read</h3>
             <span className="text-gray-500">{wantToReadBooks.length}</span>
@@ -109,8 +145,7 @@ export default function LibPage() {
             </div>
           )}
         </section>
-
-        {/* Read Section */}
+        :
         <section>
           <div className="flex items-baseline justify-between mb-4">
             <h3 className="text-2xl font-semibold text-gray-900">Read</h3>
@@ -148,6 +183,7 @@ export default function LibPage() {
             </div>
           )}
         </section>
+      }
       </div>
     </div>
   );

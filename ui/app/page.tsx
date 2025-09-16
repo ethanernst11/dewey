@@ -124,7 +124,9 @@ export default function FeedPage() {
           </div>
         )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {books.map((book, index) => {
+            {books
+              .filter((book) => !isInLibrary(book.id)) // Filter out books already in library
+              .map((book, index) => {
             const inLibrary = isInLibrary(book.id);
             const isReadInLibrary = readBooks.some(b => b.id === book.id);
             const isWantInLibrary = wantToReadBooks.some(b => b.id === book.id);
@@ -154,14 +156,6 @@ export default function FeedPage() {
                     </svg>
                   </div>
                 )}
-                
-                {/* Add to library hint */}
-                {!inLibrary && actionForId !== book.id && (
-                  <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-75 text-white px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <p className="text-sm text-center">Click to choose how to add</p>
-                  </div>
-                )}
-
                 {/* Action menu for adding */}
                 {!inLibrary && actionForId === book.id && (
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-4" onClick={(e) => { e.stopPropagation(); }}>
@@ -169,16 +163,22 @@ export default function FeedPage() {
                       <h4 className="text-sm font-medium text-gray-900 mb-3">Add to Library</h4>
                       <div className="space-y-2">
                         <button
-                          className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                          className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2"
                           onClick={(e) => { e.stopPropagation(); handleAddAsWantToRead(book); }}
                         >
-                          Mark as Want to Read
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                          </svg>
+                          <span>Want to Read</span>
                         </button>
                         <button
-                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                           onClick={(e) => { e.stopPropagation(); handleAddAsRead(book); }}
                         >
-                          Mark as Read
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Mark as Read</span>
                         </button>
                         <button
                           className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
