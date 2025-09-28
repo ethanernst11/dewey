@@ -27,6 +27,38 @@ export default function FeedPage() {
 
   const closeActionMenu = useCallback(() => setActionForId(null), []);
 
+  // Infinite scroll logic
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if user has scrolled near the bottom of the page
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Trigger load more when user is within 200px of the bottom
+      const threshold = 200;
+      const nearBottom = scrollTop + windowHeight >= documentHeight - threshold;
+      
+      if (nearBottom && !loading && books.length > 0) {
+        loadMore();
+      }
+    };
+
+    // Throttle scroll events to prevent excessive API calls
+    let timeoutId: NodeJS.Timeout;
+    const throttledHandleScroll = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(handleScroll, 100);
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [loading, books.length, loadMore]);
+
   // Callback ref to register cards for tracking
   const cardRef = useCallback((element: HTMLDivElement | null, trackingId: string) => {
     if (element) {
@@ -99,7 +131,7 @@ export default function FeedPage() {
             <p className="text-gray-600 mb-4">{error}</p>
             <button 
               onClick={() => window.location.reload()} 
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md"
             >
               Try Again
             </button>
@@ -163,7 +195,7 @@ export default function FeedPage() {
                       <h4 className="text-sm font-medium text-gray-900 mb-3">Add to Library</h4>
                       <div className="space-y-2">
                         <button
-                          className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2"
+                          className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2"
                           onClick={(e) => { e.stopPropagation(); handleAddAsWantToRead(book); }}
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -172,7 +204,7 @@ export default function FeedPage() {
                           <span>Want to Read</span>
                         </button>
                         <button
-                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2"
                           onClick={(e) => { e.stopPropagation(); handleAddAsRead(book); }}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,7 +213,7 @@ export default function FeedPage() {
                           <span>Mark as Read</span>
                         </button>
                         <button
-                          className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                          className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
                           onClick={(e) => { e.stopPropagation(); closeActionMenu(); }}
                         >
                           Cancel
@@ -196,21 +228,15 @@ export default function FeedPage() {
           </div>
         </div>
 
-      <div className="text-center mt-8">
-        {loading ? (
+      {/* Loading indicator for infinite scroll */}
+      {loading && books.length > 0 && (
+        <div className="text-center mt-8">
           <div className="flex justify-center items-center">
-          <LoadingSpinner size="large" />
+            <LoadingSpinner size="large" />
           </div>
-        ) : (
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Load More
-          </button>
-        )}
-      </div>
+          <p className="text-gray-500 text-sm mt-2">Loading more books...</p>
+        </div>
+      )}
       </PageLayout>
     </>
   );
