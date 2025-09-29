@@ -6,6 +6,7 @@ import {
   addBookToLibrary, 
   removeBookFromLibrary, 
   markBookAsRead,
+  markBookAsCurrentlyReading,
   markBookAsUnread,
   getLibraryBooks,
   isBookInLibrary
@@ -15,9 +16,11 @@ interface UseLibraryReturn {
   libraryBooks: Book[];
   readBooks: Book[];
   wantToReadBooks: Book[];
+  currentlyReadingBooks: Book[];
   addBook: (book: Book) => void;
   removeBook: (bookId: string) => void;
   markAsRead: (bookId: string) => void;
+  markAsReading: (bookId: string) => void;
   markAsUnread: (bookId: string) => void;
   refreshLibrary: () => void;
   isInLibrary: (bookId: string) => boolean;
@@ -46,6 +49,11 @@ export function useLibrary(): UseLibraryReturn {
     refreshLibrary();
   }, [refreshLibrary]);
 
+  const markAsReading = useCallback((bookId: string) => {
+    markBookAsCurrentlyReading(bookId);
+    refreshLibrary();
+  }, [refreshLibrary]);
+
   const markAsUnread = useCallback((bookId: string) => {
     markBookAsUnread(bookId);
     refreshLibrary();
@@ -59,16 +67,23 @@ export function useLibrary(): UseLibraryReturn {
     refreshLibrary();
   }, [refreshLibrary]);
 
-  const readBooks = libraryBooks.filter(b => b.isRead);
-  const wantToReadBooks = libraryBooks.filter(b => !b.isRead);
+  const getStatus = useCallback((book: Book) => {
+    return book.status ?? (book.isRead ? 'read' : 'want_to_read');
+  }, []);
+
+  const readBooks = libraryBooks.filter(b => getStatus(b) === 'read');
+  const currentlyReadingBooks = libraryBooks.filter(b => getStatus(b) === 'reading');
+  const wantToReadBooks = libraryBooks.filter(b => getStatus(b) === 'want_to_read');
 
   return {
     libraryBooks,
     readBooks,
     wantToReadBooks,
+    currentlyReadingBooks,
     addBook,
     removeBook,
     markAsRead,
+    markAsReading,
     markAsUnread,
     refreshLibrary,
     isInLibrary,

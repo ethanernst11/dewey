@@ -8,7 +8,7 @@ interface CardProps {
   author?: string;
   description?: string;
   showButtons?: boolean;
-  buttonType?: 'want-to-read' | 'read';
+  buttonType?: 'want-to-read' | 'reading' | 'read';
   onRead?: () => void;
   onTrash?: () => void;
   onStart?: () => void;
@@ -56,6 +56,47 @@ export default function Card({ title, imageUrl, isRead, author, description, sho
           <div className="flex gap-2">
             {buttonType === 'want-to-read' && (
               <>
+                {onStart && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStart?.();
+                    }}
+                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Start
+                  </button>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRead?.();
+                  }}
+                  className={`flex-1 bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 shadow-lg ${onStart ? '' : 'max-w-[70%]'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Finished
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTrash?.();
+                  }}
+                  className="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center shadow-lg"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </>
+            )}
+            {buttonType === 'reading' && (
+              <>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -66,7 +107,19 @@ export default function Card({ title, imageUrl, isRead, author, description, sho
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Read
+                  Finished
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStart?.();
+                  }}
+                  className="flex-1 bg-yellow-500 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                  Want to Read
                 </button>
                 <button
                   onClick={(e) => {

@@ -3,6 +3,7 @@ export interface Book {
   title: string;
   imageUrl: string;
   isRead: boolean;
+  status?: 'want_to_read' | 'reading' | 'read';
   author?: string;
   description?: string;
   genre?: string;

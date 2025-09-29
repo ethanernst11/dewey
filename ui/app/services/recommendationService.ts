@@ -38,7 +38,7 @@ class RecommendationService {
     return data;
   }
 
-  async getMockRecommendations(params: RecommendationRequest): Promise<RecommendationResponse> {
+  async getMockRecommendations(): Promise<RecommendationResponse> {
     return {
       cards: []
     };

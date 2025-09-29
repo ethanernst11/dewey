@@ -4,10 +4,20 @@ import Navigation from '../components/Navigation';
 import Card from '../components/Card';
 import { useState } from 'react';
 import { useLibrary } from '../hooks/libHooks';
+import Link from 'next/link';
 
 export default function LibPage() {
-  const { libraryBooks, readBooks, wantToReadBooks, removeBook, markAsRead, markAsUnread } = useLibrary();
-  const [viewState, setViewState] = useState<string>("Want to Read")
+  const {
+    libraryBooks,
+    readBooks,
+    wantToReadBooks,
+    currentlyReadingBooks,
+    removeBook,
+    markAsRead,
+    markAsUnread,
+    markAsReading,
+  } = useLibrary();
+  const [viewState, setViewState] = useState<string>('Want to Read');
   const handleRemoveBook = (bookId: string) => {
     if (confirm('Are you sure you want to remove this book from your library?')) {
       removeBook(bookId);
@@ -32,12 +42,12 @@ export default function LibPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Your library is empty</h3>
             <p className="text-gray-600 mb-4">Start building your collection by adding books from the feed</p>
-            <a 
+            <Link 
               href="/" 
               className="bg-blue-600 text-white px-4 py-2 rounded-md"
             >
               Browse Feed
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -70,6 +80,19 @@ export default function LibPage() {
               </button>
               <button 
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium ${
+                  viewState === "Currently Reading" 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600'
+                }`}
+                onClick={() => setViewState("Currently Reading")}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6 4h14v13H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2z" />
+                </svg>
+                <span>Currently Reading</span>
+              </button>
+              <button 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium ${
                   viewState === "READ" 
                     ? 'bg-white text-green-600 shadow-sm' 
                     : 'text-gray-600'
@@ -86,74 +109,111 @@ export default function LibPage() {
           
           <p className="text-gray-600">Your personal collection of books ({libraryBooks.length} books)</p>
         </div>
-
-        {
-          viewState === "Want to Read" ? 
+        {viewState === 'Want to Read' && (
           <section className="mb-10">
-          <div className="flex items-baseline justify-between mb-4">
-            <h3 className="text-2xl font-semibold text-gray-900">Want to Read</h3>
-            <span className="text-gray-500">{wantToReadBooks.length}</span>
-          </div>
-          {wantToReadBooks.length === 0 ? (
-            <p className="text-gray-600">No books in your want-to-read list.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {wantToReadBooks.map((book) => (
-                <div key={book.id} className="relative">
-                  {/* Status icon: Want to Read (yellow star in white circle) */}
-                  <div className="absolute top-6 right-6 bg-white text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-10" title="Want to Read" aria-label="Want to Read">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
-                  </div>
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="text-2xl font-semibold text-gray-900">Want to Read</h3>
+              <span className="text-gray-500">{wantToReadBooks.length}</span>
+            </div>
+            {wantToReadBooks.length === 0 ? (
+              <p className="text-gray-600">No books in your want-to-read list.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {wantToReadBooks.map((book) => (
+                  <div key={book.id} className="relative">
+                    <div className="absolute top-6 right-6 bg-white text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-10" title="Want to Read" aria-label="Want to Read">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                      </svg>
+                    </div>
 
-                  <Card
-                    id={book.id}
-                    title={book.title}
-                    imageUrl={book.imageUrl}
-                    isRead={false}
-                    author={book.author}
-                    description={book.description}
-                    showButtons={true}
-                    buttonType="want-to-read"
-                    onRead={() => markAsRead(book.id)}
-                    onTrash={() => handleRemoveBook(book.id)}
-                  />
-                </div>
-              ))}
+                    <Card
+                      id={book.id}
+                      title={book.title}
+                      imageUrl={book.imageUrl}
+                      isRead={false}
+                      author={book.author}
+                      description={book.description}
+                      showButtons={true}
+                      buttonType="want-to-read"
+                      onStart={() => markAsReading(book.id)}
+                      onRead={() => markAsRead(book.id)}
+                      onTrash={() => handleRemoveBook(book.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {viewState === 'Currently Reading' && (
+          <section className="mb-10">
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="text-2xl font-semibold text-gray-900">Currently Reading</h3>
+              <span className="text-gray-500">{currentlyReadingBooks.length}</span>
             </div>
-          )}
-        </section>
-        :
-        <section>
-          <div className="flex items-baseline justify-between mb-4">
-            <h3 className="text-2xl font-semibold text-gray-900">Read</h3>
-            <span className="text-gray-500">{readBooks.length}</span>
-          </div>
-          {readBooks.length === 0 ? (
-            <p className="text-gray-600">No books in your read list.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {readBooks.map((book) => (
-                <div key={book.id} className="relative">
-                  <Card
-                    id={book.id}
-                    title={book.title}
-                    imageUrl={book.imageUrl}
-                    isRead={true}
-                    author={book.author}
-                    description={book.description}
-                    showButtons={true}
-                    buttonType="read"
-                    onStart={() => markAsUnread(book.id)}
-                    onTrash={() => handleRemoveBook(book.id)}
-                  />
-                </div>
-              ))}
+            {currentlyReadingBooks.length === 0 ? (
+              <p className="text-gray-600">You are not reading any books right now.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentlyReadingBooks.map((book) => (
+                  <div key={book.id} className="relative">
+                    <div className="absolute top-6 right-6 bg-white text-blue-600 w-8 h-8 rounded-full flex items-center justify-center shadow-lg z-10" title="Currently Reading" aria-label="Currently Reading">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6 4h14v13H6a2 2 0 0 0-2 2V6a2 2 0 0 1 2-2z" />
+                      </svg>
+                    </div>
+                    <Card
+                      id={book.id}
+                      title={book.title}
+                      imageUrl={book.imageUrl}
+                      isRead={false}
+                      author={book.author}
+                      description={book.description}
+                      showButtons={true}
+                      buttonType="reading"
+                      onRead={() => markAsRead(book.id)}
+                      onStart={() => markAsUnread(book.id)}
+                      onTrash={() => handleRemoveBook(book.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {viewState === 'READ' && (
+          <section>
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="text-2xl font-semibold text-gray-900">Read</h3>
+              <span className="text-gray-500">{readBooks.length}</span>
             </div>
-          )}
-        </section>
-      }
+            {readBooks.length === 0 ? (
+              <p className="text-gray-600">No books in your read list.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {readBooks.map((book) => (
+                  <div key={book.id} className="relative">
+                    <Card
+                      id={book.id}
+                      title={book.title}
+                      imageUrl={book.imageUrl}
+                      isRead={true}
+                      author={book.author}
+                      description={book.description}
+                      showButtons={true}
+                      buttonType="read"
+                      onStart={() => markAsReading(book.id)}
+                      onTrash={() => handleRemoveBook(book.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );

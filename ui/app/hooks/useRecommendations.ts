@@ -29,6 +29,7 @@ function cardToBook(card: Card): Book {
     title: card.product.title,
     imageUrl: card.product.image_url,
     isRead: false, // Default to unread
+    status: 'want_to_read',
     author,
     description: card.product.body,
     genre,
@@ -43,18 +44,22 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(params.page || 1);
 
+  const batchCount = params.batchCount ?? 10;
+  const eventsFromParams = params.events;
+  const searchPrompt = params.searchPrompt ?? '';
+
   // Initialize linger tracking
   const { trackCard, untrackCard, getLingerMetrics, resetTracking } = useLingerTracking(sessionId);
 
   const fetchRecommendations = useCallback(async (page: number = 1, append: boolean = false) => {
     try {
-      console.log('fetchRecommendations called with:', { page, append, searchPrompt: params.searchPrompt });
+      console.log('fetchRecommendations called with:', { page, append, searchPrompt });
       setLoading(true);
       setError(null);
 
       // Get linger metrics before making the request
       const lingerEvent = getLingerMetrics();
-      const events: Event[] = [];
+      const events: Event[] = [...(eventsFromParams ?? [])];
       
       if (lingerEvent) {
         events.push(lingerEvent);
@@ -62,10 +67,10 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
       }
       const requestParams = {
         sessionId,
-        ...params,
         page,
-        // events: [...(params.events || []), ...events]
-        events: events
+        batchCount,
+        events,
+        searchPrompt,
       };
 
       console.log('requestParams:', requestParams);
@@ -87,14 +92,14 @@ export function useRecommendations(sessionId: string, params: Partial<Recommenda
     } finally {
       setLoading(false);
     }
-  }, [sessionId, params.batchCount, params.events, params.searchPrompt, getLingerMetrics, resetTracking]);
+  }, [sessionId, batchCount, eventsFromParams, searchPrompt, getLingerMetrics, resetTracking]);
 
   // Fetch recommendations when search prompt or other params change
   useEffect(() => {
-    console.log('useEffect triggered for search:', params.searchPrompt);
+    console.log('useEffect triggered for search:', searchPrompt);
     setCurrentPage(1);
     fetchRecommendations(1, false);
-  }, [params.searchPrompt, params.batchCount, params.events, sessionId, fetchRecommendations]);
+  }, [searchPrompt, batchCount, eventsFromParams, sessionId, fetchRecommendations]);
 
   const refetch = useCallback(async () => {
     await fetchRecommendations();

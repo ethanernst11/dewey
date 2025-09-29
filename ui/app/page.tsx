@@ -1,6 +1,6 @@
  'use client';
 
-import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import PageLayout from './components/PageLayout';
 import LoadingSpinner from './components/LoadingSpinner';
 import ScrollToTop from './components/ScrollToTop';
@@ -8,6 +8,7 @@ import Card from './components/Card';
 import { useRecommendations } from './hooks/useRecommendations';
 import { useLibrary } from './hooks/libHooks';
 import { v4 as uuidv4 } from 'uuid';
+import { Book } from './types/book';
 
 const sessionId = String(uuidv4())
 
@@ -21,7 +22,14 @@ export default function FeedPage() {
   }), [searchPrompt]);
   
   const { books, loading, error, loadMore, trackCard, untrackCard } = useRecommendations(sessionId, params);
-  const { addBook, isInLibrary, markAsRead, markAsUnread, readBooks, wantToReadBooks } = useLibrary();
+  const {
+    addBook,
+    isInLibrary,
+    markAsRead,
+    markAsUnread,
+    markAsReading,
+    readBooks,
+  } = useLibrary();
 
   const [actionForId, setActionForId] = useState<string | null>(null);
 
@@ -72,7 +80,7 @@ export default function FeedPage() {
     setSearchPrompt(query);
   }, []);
 
-  const handleCardClick = (book: any) => {
+  const handleCardClick = (book: Book) => {
     if (isInLibrary(book.id)) {
       // Book is already in library, do nothing or show message
       console.log('Book is already in your library');
@@ -82,16 +90,22 @@ export default function FeedPage() {
     }
   };
 
-  const handleAddAsRead = (book: any) => {
+  const handleAddAsRead = (book: Book) => {
     addBook(book);
     markAsRead(book.id);
     closeActionMenu();
   };
 
-  const handleAddAsWantToRead = (book: any) => {
+  const handleAddAsWantToRead = (book: Book) => {
     addBook(book);
     // Ensure isRead is false in stored book for consistency
     markAsUnread(book.id);
+    closeActionMenu();
+  };
+
+  const handleAddAsCurrentlyReading = (book: Book) => {
+    addBook(book);
+    markAsReading(book.id);
     closeActionMenu();
   };
 
@@ -161,7 +175,6 @@ export default function FeedPage() {
               .map((book, index) => {
             const inLibrary = isInLibrary(book.id);
             const isReadInLibrary = readBooks.some(b => b.id === book.id);
-            const isWantInLibrary = wantToReadBooks.some(b => b.id === book.id);
             // add #index to book.id because same book can appear multiple times in the feed
             const trackingId = `${book.id}#${index}`;
             return (
@@ -194,6 +207,15 @@ export default function FeedPage() {
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-xs p-4">
                       <h4 className="text-sm font-medium text-gray-900 mb-3">Add to Library</h4>
                       <div className="space-y-2">
+                        <button
+                          className="w-full bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2"
+                          onClick={(e) => { e.stopPropagation(); handleAddAsCurrentlyReading(book); }}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <span>Currently Reading</span>
+                        </button>
                         <button
                           className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md flex items-center justify-center space-x-2"
                           onClick={(e) => { e.stopPropagation(); handleAddAsWantToRead(book); }}
