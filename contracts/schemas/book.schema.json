@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Book",
+  "type": "object",
+  "required": ["id", "title", "imageUrl", "isRead"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the book"
+    },
+    "title": {
+      "type": "string"
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "isRead": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["want_to_read", "reading", "read"]
+    },
+    "author": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "publishedYear": {
+      "type": "integer"
+    },
+    "productUrl": {
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

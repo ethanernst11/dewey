@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: Dewey API
+  version: 0.1.0
+  description: Contract for clients (web, iOS) consuming the recommendation feed
+servers:
+  - url: https://app.productgenius.io
+paths:
+  /hackathon/{project}/feed/{sessionId}:
+    post:
+      summary: Fetch recommendation feed
+      parameters:
+        - in: path
+          name: project
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  minimum: 1
+                batch_count:
+                  type: integer
+                events:
+                  type: array
+                  items:
+                    type: object
+                search_prompt:
+                  type: string
+      responses:
+        '200':
+          description: Recommendation cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    items:
+                      $ref: './schemas/book.schema.json'

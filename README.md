@@ -46,12 +46,11 @@ Dewey is a cutting-edge book recommendation platform that helps users discover t
 ```
 apps/
 ├── web/                    # Next.js web experience (existing UI)
-│   ├── app/                # App router, components, hooks, pages
-│   └── package.json
-└── mobile/                 # Placeholder for future iOS/Android client
+└── ios/                    # Placeholder for native SwiftUI codebase
 
-packages/
-└── core/                   # Shared domain models & logic (TypeScript)
+contracts/
+├── openapi.yaml            # Shared API contract
+└── schemas/                # JSON Schemas consumed by web + Swift clients
 
 tools/
 └── test_api/               # Python scripts for Gray Whale experimentation
@@ -91,6 +90,14 @@ tools/
 
 5. **Open your browser**
    Navigate to `http://localhost:3000`
+
+### iOS (Swift) Setup
+
+1. **Open the Xcode workspace** (placeholder directory for now)
+   ```bash
+   open apps/ios
+   ```
+2. Consume the shared API definitions from `contracts/` when implementing models and networking.
 
 ### Backend Setup
 

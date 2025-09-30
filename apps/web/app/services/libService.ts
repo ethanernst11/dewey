@@ -1,5 +1,5 @@
 
-import { Book } from '@dewey/core';
+import { Book } from '../types/book';
 
 type ReadingStatus = 'want_to_read' | 'reading' | 'read';
 

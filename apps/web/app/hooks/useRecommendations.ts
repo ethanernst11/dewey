@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Book, Card, RecommendationRequest, Event } from '@dewey/core';
+import { Book, Card, RecommendationRequest, Event } from '../types/book';
 import { recommendationService } from '../services/recommendationService';
 import { useLingerTracking } from './useLingerTracking';
 

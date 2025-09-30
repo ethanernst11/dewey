@@ -8,7 +8,7 @@ import Card from './components/Card';
 import { useRecommendations } from './hooks/useRecommendations';
 import { useLibrary } from './hooks/libHooks';
 import { v4 as uuidv4 } from 'uuid';
-import { Book } from '@dewey/core';
+import { Book } from './types/book';
 
 const sessionId = String(uuidv4())
 
