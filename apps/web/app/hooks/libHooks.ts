@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Book } from '../types/book';
+import { Book } from '@dewey/core';
 import { 
   addBookToLibrary, 
   removeBookFromLibrary, 

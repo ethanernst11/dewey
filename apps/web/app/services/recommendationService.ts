@@ -1,4 +1,4 @@
-import { RecommendationRequest, RecommendationResponse } from '../types/book';
+import { RecommendationRequest, RecommendationResponse } from '@dewey/core';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const PROJECT_NAME = process.env.NEXT_PUBLIC_PROJECT_NAME || 'dewey';

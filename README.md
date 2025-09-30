@@ -42,29 +42,19 @@ Dewey is a cutting-edge book recommendation platform that helps users discover t
 
 ## 🏗 Architecture
 
-### Frontend Architecture
+### Monorepo Layout
 ```
-ui/
-├── app/
-│   ├── components/          # Reusable UI components
-│   ├── hooks/              # Custom React hooks
-│   │   ├── useRecommendations.ts  # Main recommendation logic
-│   │   ├── useLingerTracking.ts   # Behavioral tracking
-│   │   └── libHooks.ts            # Library management
-│   ├── services/           # API communication
-│   ├── types/              # TypeScript definitions
-│   └── lib/                # Library page
-```
+apps/
+├── web/                    # Next.js web experience (existing UI)
+│   ├── app/                # App router, components, hooks, pages
+│   └── package.json
+└── mobile/                 # Placeholder for future iOS/Android client
 
-### API Exploration and Experimentation Architecture
-```
-test_api/
-├── src/
-│   ├── feed_api.py         # GreyWhale API integration
-│   ├── item_api.py         # Item management
-│   └── model_api.py        # Data models
-├── dataset/                # Sample data
-└── main.py                 # API orchestration
+packages/
+└── core/                   # Shared domain models & logic (TypeScript)
+
+tools/
+└── test_api/               # Python scripts for Gray Whale experimentation
 ```
 
 ## 🚀 Getting Started
@@ -76,9 +66,9 @@ test_api/
 
 ### Frontend Setup
 
-1. **Navigate to the UI directory**
+1. **Navigate to the web app**
    ```bash
-   cd ui
+   cd apps/web
    ```
 
 2. **Install dependencies**
@@ -104,9 +94,9 @@ test_api/
 
 ### Backend Setup
 
-1. **Navigate to the API directory**
+1. **Navigate to the API tools directory**
    ```bash
-   cd test_api
+   cd tools/test_api
    ```
 
 2. **Set up environment variables**

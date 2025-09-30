@@ -1,0 +1,9 @@
+{
+  "name": "dewey-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ]
+}

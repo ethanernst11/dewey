@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    tsconfigPaths: true,
+  },
+  transpilePackages: ['@dewey/core'],
   images: {
     remotePatterns: [
       {
